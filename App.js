@@ -8,8 +8,9 @@ import {
   Text,
   View,
 } from "react-native";
-import RegistrationScreen from "./Screens/RegistrationScreen";
 import { StrictMode } from "react";
+import RegistrationScreen from "./src/screens/RegistrationScreen";
+import LoginScreen from "./src/screens/LoginScreen";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -35,7 +36,8 @@ export default function App() {
           resizeMode="cover"
           style={styles.image}
         />
-        <RegistrationScreen />
+        {/* <RegistrationScreen /> */}
+        <LoginScreen />
       </ImageBackground>
     </View>
   );

@@ -19,7 +19,7 @@ import Input from "../components/Input";
 import { colors } from "../../styles/global";
 import Button from "../components/Button";
 
-const RegistrationScreen = () => {
+const RegistrationScreen = ({ switchAuthorization }) => {
   const [data, setData] = useState({
     username: "",
     email: "",
@@ -63,6 +63,7 @@ const RegistrationScreen = () => {
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS == "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={-208 + 32}
       >
         <View style={styles.backgroundSection}>
           <View style={styles.content}>
@@ -101,10 +102,8 @@ const RegistrationScreen = () => {
                 </Button>
                 <View style={styles.textWithLink}>
                   <Text>Aready have account? </Text>
-                  <TouchableWithoutFeedback
-                    onPress={() => console.log("Switch to Register Press")}
-                  >
-                    <Text>Login</Text>
+                  <TouchableWithoutFeedback onPress={switchAuthorization}>
+                    <Text style={styles.link}>Login</Text>
                   </TouchableWithoutFeedback>
                 </View>
               </View>
@@ -185,16 +184,6 @@ const styles = StyleSheet.create({
     width: "100%",
     gap: 16,
   },
-  button: {
-    width: 343,
-    height: 19 + 16 * 2,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    alignItems: "center",
-    gap: 12,
-    borderRadius: 100,
-    backgroundColor: colors.accent_orange,
-  },
   buttonText: {
     color: colors.white,
   },
@@ -202,5 +191,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     color: colors.navy_primary,
+  },
+  link: {
+    textDecorationLine: "underline",
   },
 });

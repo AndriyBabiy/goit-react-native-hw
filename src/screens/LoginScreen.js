@@ -19,7 +19,7 @@ import Input from "../components/Input";
 import { colors } from "../../styles/global";
 import Button from "../components/Button";
 
-const LoginScreen = () => {
+const LoginScreen = ({ switchAuthorization }) => {
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -31,8 +31,12 @@ const LoginScreen = () => {
   };
 
   const onLogin = () => {
-    console.log(data);
-    setData((prev) => ({ ...prev, email: "", password: "" }));
+    if (data.email.length > 1 && data.password.length > 1) {
+      console.log(data);
+      setData((prev) => ({ ...prev, email: "", password: "" }));
+    } else {
+      console.log("Data Missing: Please fill all fields.");
+    }
   };
 
   const showPassword = () => {
@@ -54,6 +58,7 @@ const LoginScreen = () => {
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS == "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={-274 + 32}
       >
         <View style={styles.backgroundSection}>
           <View style={styles.content}>
@@ -79,8 +84,8 @@ const LoginScreen = () => {
                 </Button>
                 <View style={styles.textWithLink}>
                   <Text>Don't have account? </Text>
-                  <TouchableWithoutFeedback onPress={onLogin}>
-                    <Text>Register</Text>
+                  <TouchableWithoutFeedback onPress={switchAuthorization}>
+                    <Text style={styles.link}>Register</Text>
                   </TouchableWithoutFeedback>
                 </View>
               </View>
@@ -160,5 +165,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     color: colors.navy_primary,
+  },
+  link: {
+    textDecorationLine: "underline",
   },
 });

@@ -8,11 +8,18 @@ import {
   Text,
   View,
 } from "react-native";
-import { StrictMode } from "react";
+import { StrictMode, useState } from "react";
 import RegistrationScreen from "./src/screens/RegistrationScreen";
 import LoginScreen from "./src/screens/LoginScreen";
 
 export default function App() {
+  const [authorizationTypeRegister, setAuthorizationTypeRegister] =
+    useState(true);
+
+  const onChangeAuthorization = () => {
+    setAuthorizationTypeRegister((prev) => !prev);
+  };
+
   const [fontsLoaded] = useFonts({
     "Roboto-Bold": require("./assets/fonts/Roboto-Bold.ttf"),
     "Roboto-Medium": require("./assets/fonts/Roboto-Medium.ttf"),
@@ -36,8 +43,11 @@ export default function App() {
           resizeMode="cover"
           style={styles.image}
         />
-        {/* <RegistrationScreen /> */}
-        <LoginScreen />
+        {authorizationTypeRegister ? (
+          <RegistrationScreen switchAuthorization={onChangeAuthorization} />
+        ) : (
+          <LoginScreen switchAuthorization={onChangeAuthorization} />
+        )}
       </ImageBackground>
     </View>
   );

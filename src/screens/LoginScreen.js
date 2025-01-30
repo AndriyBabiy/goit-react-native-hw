@@ -11,11 +11,13 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from "react-native";
 import React, { useState } from "react";
 import AddImageSVG from "../../assets/icons/addImage";
 import Input from "../components/Input";
 import { colors } from "../../styles/global";
+import Button from "../components/Button";
 
 const LoginScreen = () => {
   const [data, setData] = useState({
@@ -48,46 +50,45 @@ const LoginScreen = () => {
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.backgroundSection}>
-        <KeyboardAvoidingView
-          style={styles.content}
-          behavior={Platform.OS == "ios" ? "padding" : "height"}
-        >
-          <Text style={styles.header}>Login</Text>
-          <View style={styles.loginForm}>
-            <View style={styles.formFields}>
-              <Input
-                value={data.email}
-                placeholder={"Email"}
-                onTextChange={(value) => onInputChange(value, "email")}
-              />
-              <Input
-                value={data.password}
-                placeholder={"Password"}
-                onTextChange={(value) => onInputChange(value, "password")}
-                actionButton={showButton}
-                secureTextEntry={isPasswordHidden}
-              />
-            </View>
-            <View style={styles.formSubmissionButtons}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => console.log(data)}
-              >
-                <Text style={styles.buttonText}>Login</Text>
-              </TouchableOpacity>
-              <View style={styles.textWithLink}>
-                <Text>Don't have account? </Text>
-                <TouchableWithoutFeedback onPress={onLogin}>
-                  <Text>Register</Text>
-                </TouchableWithoutFeedback>
+    <Pressable style={{ flex: 1 }} onPress={() => Keyboard.dismiss()}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS == "ios" ? "padding" : "height"}
+      >
+        <View style={styles.backgroundSection}>
+          <View style={styles.content}>
+            <Text style={styles.header}>Login</Text>
+            <View style={styles.loginForm}>
+              <View style={styles.formFields}>
+                <Input
+                  value={data.email}
+                  placeholder={"Email"}
+                  onTextChange={(value) => onInputChange(value, "email")}
+                />
+                <Input
+                  value={data.password}
+                  placeholder={"Password"}
+                  onTextChange={(value) => onInputChange(value, "password")}
+                  actionButton={showButton}
+                  secureTextEntry={isPasswordHidden}
+                />
+              </View>
+              <View style={styles.formSubmissionButtons}>
+                <Button onPress={onLogin}>
+                  <Text style={styles.buttonText}>Login</Text>
+                </Button>
+                <View style={styles.textWithLink}>
+                  <Text>Don't have account? </Text>
+                  <TouchableWithoutFeedback onPress={onLogin}>
+                    <Text>Register</Text>
+                  </TouchableWithoutFeedback>
+                </View>
               </View>
             </View>
           </View>
-        </KeyboardAvoidingView>
-      </View>
-    </View>
+        </View>
+      </KeyboardAvoidingView>
+    </Pressable>
   );
 };
 

@@ -14,12 +14,12 @@ import {
   Keyboard,
 } from "react-native";
 import React, { useState } from "react";
-import AddImageSVG from "../../assets/icons/addImage";
 import Input from "../components/Input";
+import AddImageIcon from "../../assets/icons/AddImageIcon";
 import { colors } from "../../styles/global";
 import Button from "../components/Button";
 
-const RegistrationScreen = ({ switchAuthorization }) => {
+const RegistrationScreen = ({ route, navigation, authorization }) => {
   const [data, setData] = useState({
     username: "",
     email: "",
@@ -39,6 +39,7 @@ const RegistrationScreen = ({ switchAuthorization }) => {
     ) {
       console.log(data);
       setData((prev) => ({ ...prev, username: "", email: "", password: "" }));
+      authorization();
     } else {
       console.log("Data Missing: Please fill all fields.");
     }
@@ -46,6 +47,13 @@ const RegistrationScreen = ({ switchAuthorization }) => {
 
   const showPassword = () => {
     setIsPasswordHidden((prev) => !prev);
+  };
+
+  const toLogin = () => {
+    navigation.replace("Login", {
+      email: data.email,
+      password: data.password,
+    });
   };
 
   const showButton = (
@@ -60,6 +68,11 @@ const RegistrationScreen = ({ switchAuthorization }) => {
 
   return (
     <Pressable style={{ flex: 1 }} onPress={() => Keyboard.dismiss()}>
+      <Image
+        source={require("../../assets/background.png")}
+        resizeMode="cover"
+        style={styles.image}
+      />
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS == "ios" ? "padding" : "height"}
@@ -72,7 +85,7 @@ const RegistrationScreen = ({ switchAuthorization }) => {
                 style={styles.addImageButton}
                 onPress={() => console.log("Add Image")}
               >
-                <AddImageSVG style={styles.addImageButton} />
+                <AddImageIcon style={styles.addImageButton} />
               </TouchableWithoutFeedback>
             </View>
             <Text style={styles.header}>Registration</Text>
@@ -102,7 +115,7 @@ const RegistrationScreen = ({ switchAuthorization }) => {
                 </Button>
                 <View style={styles.textWithLink}>
                   <Text>Aready have account? </Text>
-                  <TouchableWithoutFeedback onPress={switchAuthorization}>
+                  <TouchableWithoutFeedback onPress={toLogin}>
                     <Text style={styles.link}>Login</Text>
                   </TouchableWithoutFeedback>
                 </View>
@@ -127,9 +140,8 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
-    flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "center",
+    position: "absolute",
+    top: 0,
   },
   backgroundSection: {
     width: "100%",

@@ -11,13 +11,15 @@ import {
 import { StrictMode, useState } from "react";
 import RegistrationScreen from "./src/screens/RegistrationScreen";
 import LoginScreen from "./src/screens/LoginScreen";
+import AuthNavigator from "./src/navigation/AuthNavigator";
+import { NavigationContainer } from "@react-navigation/native";
+import MainNavigation from "./src/navigation/MainNavigation";
 
 export default function App() {
-  const [authorizationTypeRegister, setAuthorizationTypeRegister] =
-    useState(true);
+  const [isLoggedin, setIsLoggedin] = useState(false);
 
-  const onChangeAuthorization = () => {
-    setAuthorizationTypeRegister((prev) => !prev);
+  const onAuthorization = () => {
+    setIsLoggedin((prev) => !prev);
   };
 
   const [fontsLoaded] = useFonts({
@@ -31,25 +33,13 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="auto" translucent />
-      <ImageBackground
-        src={require("./assets/background.png")}
-        resizeMode="cover"
-        style={styles.imageBackground}
-      >
-        <Image
-          source={require("./assets/background.png")}
-          resizeMode="cover"
-          style={styles.image}
-        />
-        {authorizationTypeRegister ? (
-          <RegistrationScreen switchAuthorization={onChangeAuthorization} />
-        ) : (
-          <LoginScreen switchAuthorization={onChangeAuthorization} />
-        )}
-      </ImageBackground>
-    </View>
+    <NavigationContainer>
+      {!isLoggedin ? (
+        <AuthNavigator authorization={onAuthorization} />
+      ) : (
+        <MainNavigation authorization={onAuthorization} />
+      )}
+    </NavigationContainer>
   );
 }
 

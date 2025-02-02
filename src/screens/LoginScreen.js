@@ -14,12 +14,12 @@ import {
   Keyboard,
 } from "react-native";
 import React, { useState } from "react";
-import AddImageSVG from "../../assets/icons/addImage";
+import AddImageSVG from "../../assets/icons/AddImageIcon";
 import Input from "../components/Input";
 import { colors } from "../../styles/global";
 import Button from "../components/Button";
 
-const LoginScreen = ({ switchAuthorization }) => {
+const LoginScreen = ({ route, navigation, authorization }) => {
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -34,6 +34,7 @@ const LoginScreen = ({ switchAuthorization }) => {
     if (data.email.length > 1 && data.password.length > 1) {
       console.log(data);
       setData((prev) => ({ ...prev, email: "", password: "" }));
+      authorization();
     } else {
       console.log("Data Missing: Please fill all fields.");
     }
@@ -41,6 +42,13 @@ const LoginScreen = ({ switchAuthorization }) => {
 
   const showPassword = () => {
     setIsPasswordHidden((prev) => !prev);
+  };
+
+  const toRegister = () => {
+    navigation.replace("Register", {
+      email: data.email,
+      password: data.password,
+    });
   };
 
   const showButton = (
@@ -55,6 +63,11 @@ const LoginScreen = ({ switchAuthorization }) => {
 
   return (
     <Pressable style={{ flex: 1 }} onPress={() => Keyboard.dismiss()}>
+      <Image
+        source={require("../../assets/background.png")}
+        resizeMode="cover"
+        style={styles.image}
+      />
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS == "ios" ? "padding" : "height"}
@@ -84,7 +97,7 @@ const LoginScreen = ({ switchAuthorization }) => {
                 </Button>
                 <View style={styles.textWithLink}>
                   <Text>Don't have account? </Text>
-                  <TouchableWithoutFeedback onPress={switchAuthorization}>
+                  <TouchableWithoutFeedback onPress={toRegister}>
                     <Text style={styles.link}>Register</Text>
                   </TouchableWithoutFeedback>
                 </View>
@@ -109,9 +122,8 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
-    flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "center",
+    position: "absolute",
+    top: 0,
   },
   backgroundSection: {
     width: "100%",

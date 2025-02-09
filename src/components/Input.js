@@ -12,6 +12,7 @@ const Input = ({
   onTextChange,
   placeholder,
   outerStyles,
+  leftIcon,
   actionButton,
   autofocus = false,
   secureTextEntry = false,
@@ -36,6 +37,7 @@ const Input = ({
       onPress={onFocus}
       style={[styles.formInputField, isFocused && styles.focused, outerStyles]}
     >
+      {leftIcon}
       <TextInput
         value={value}
         autofocus={autofocus}

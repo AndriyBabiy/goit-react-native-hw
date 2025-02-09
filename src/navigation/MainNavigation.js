@@ -12,13 +12,16 @@ import { colors } from "../../styles/global.js";
 import CreatePostScreen from "../screens/CreatePostScreen.js";
 import ProfileScreen from "../screens/ProfileScreen.js";
 import LogoutButton from "../components/LogoutButton.js";
+import { createStackNavigator } from "@react-navigation/stack";
+import CreatePostNavigation from "./CreatePostNavigation.js";
+import PostsNavigator from "./PostsNavigator.js";
 
 const BottomTab = createBottomTabNavigator();
 
 const MainNavigation = ({ authorization }) => {
   return (
     <BottomTab.Navigator
-      initialRouteName="Posts"
+      initialRouteName="Posts Navigator"
       screenOptions={{
         headerShown: true,
         tabBarLabel: "",
@@ -29,11 +32,12 @@ const MainNavigation = ({ authorization }) => {
           alignItems: "center",
           justifyContent: "center",
         },
+        headerBackButtonDisplayMode: "minimal",
       }}
     >
       <BottomTab.Screen
-        name="Posts"
-        component={PostsScreen}
+        name="Posts Navigator"
+        // component={PostsNavigator}
         options={({ navigation }) => ({
           tabBarIcon: ({ focused }) => (
             <PublicationsIcon
@@ -42,14 +46,16 @@ const MainNavigation = ({ authorization }) => {
             />
           ),
           tabBarIconStyle: styles.bottomBarElement,
-          headerRightContainerStyle: styles.headerRightStyle,
-          headerRight: ({}) => <LogoutButton onPress={authorization} />,
+          headerShown: false,
         })}
-      />
+      >
+        {(props) => <PostsNavigator {...props} authorization={authorization} />}
+      </BottomTab.Screen>
       <BottomTab.Screen
-        name="Create Post"
-        component={CreatePostScreen}
+        name="Create Post Navigation"
+        component={CreatePostNavigation}
         options={({ navigation }) => ({
+          tabBarStyle: { display: "none" },
           tabBarIcon: ({ focused }) => (
             <AddPostIcon
               size={32}
@@ -57,6 +63,7 @@ const MainNavigation = ({ authorization }) => {
             />
           ),
           tabBarIconStyle: [styles.bottomBarElement, styles.addPostElement],
+          headerShown: false,
         })}
       />
       <BottomTab.Screen

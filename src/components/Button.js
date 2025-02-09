@@ -2,9 +2,13 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { colors } from "../../styles/global";
 
-const Button = ({ children, onPress, buttonStyle }) => {
+const Button = ({ children, onPress, disabled = false, buttonStyle }) => {
   return (
-    <TouchableOpacity style={[styles.button, buttonStyle]} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.button, buttonStyle]}
+      onPress={onPress}
+      disabled={disabled}
+    >
       {children}
     </TouchableOpacity>
   );

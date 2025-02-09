@@ -13,19 +13,27 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.goit-react-native-hw",
+      "config": {
+        "googleMapsApiKey": "AIzaSyCBPzZcVkiuJ-3lPH5pcmQU_lnmKWE4JWw"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyA0SuB0vajcHvdHB27zez8BuYepf6kbQH0"
+        }
+      },
+      "package": "com.anonymous.goitreactnativehw"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-font"
-    ]
+    "plugins": ["expo-font"]
   }
 }

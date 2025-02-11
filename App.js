@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import {
+  ActivityIndicator,
   Image,
   ImageBackground,
   SafeAreaView,
@@ -8,19 +9,33 @@ import {
   Text,
   View,
 } from "react-native";
-import { StrictMode, useState } from "react";
+import { StrictMode, useEffect, useState } from "react";
 import RegistrationScreen from "./src/screens/RegistrationScreen";
 import LoginScreen from "./src/screens/LoginScreen";
 import AuthNavigator from "./src/navigation/AuthNavigator";
 import { NavigationContainer } from "@react-navigation/native";
 import MainNavigation from "./src/navigation/MainNavigation";
+import { Provider, useDispatch, useSelector } from "react-redux";
+import store from "./src/redux/store/store";
+import { PersistGate } from "redux-persist/integration/react";
+import { colors } from "./styles/global";
+import { authStateChanged } from "./src/utils/auth";
 
 export default function App() {
-  const [isLoggedin, setIsLoggedin] = useState(false);
+  // const [isLoggedin, setIsLoggedin] = useState(false);
+  // const {isLoggedin, isLoading } = useAuth()
 
-  const onAuthorization = () => {
-    setIsLoggedin((prev) => !prev);
-  };
+  // if (isLoading) {
+  //   return (
+  //     <View style={{flex: 1}}>
+  //       <ActivityIndicator size={'large'} color={colors.accent_orange}/>
+  //     </View>
+  //   )
+  // }
+
+  // const onAuthorization = () => {
+  //   setIsLoggedin((prev) => !prev);
+  // };
 
   const [fontsLoaded] = useFonts({
     "Roboto-Bold": require("./assets/fonts/Roboto-Bold.ttf"),
@@ -29,19 +44,39 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    return null;
+    return (
+      <View style={{ flex: 1 }}>
+        <ActivityIndicator size={"large"} color={colors.accent_orange} />
+      </View>
+    );
   }
 
   return (
-    <NavigationContainer>
-      {!isLoggedin ? (
-        <AuthNavigator authorization={onAuthorization} />
-      ) : (
-        <MainNavigation authorization={onAuthorization} />
-      )}
-    </NavigationContainer>
+    <Provider store={store.store}>
+      <PersistGate
+        loading={<Text>Loading...</Text>}
+        persistor={store.persistor}
+      >
+        <AuthListener />
+      </PersistGate>
+    </Provider>
   );
 }
+
+const AuthListener = () => {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.userInfo);
+
+  useEffect(() => {
+    authStateChanged(dispatch);
+  }, [dispatch]);
+
+  return (
+    <NavigationContainer>
+      {user ? <MainNavigation /> : <AuthNavigator />}
+    </NavigationContainer>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

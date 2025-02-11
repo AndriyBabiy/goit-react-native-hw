@@ -42,7 +42,7 @@ const PostsScreen = ({ navigation, route }) => {
             style={styles.postImage}
             source={require("../../assets/background.png")}
           />
-          <Text style={styles.postTitle}>Post</Text>
+          <Text style={styles.postTitle}>Post title</Text>
           <View style={styles.postDetails}>
             <Pressable style={styles.detailsElement} onPress={toComments}>
               <CommentIcon />
@@ -93,13 +93,14 @@ const styles = StyleSheet.create({
   },
   postCards: {},
   postCard: {
-    flex: 1,
+    // flex: 1,
     gap: 8,
   },
   postImage: {
     alignItems: "center",
     justifyContent: "center",
     height: 240,
+    width: Dimensions.get("window").width - 16 * 2,
     borderRadius: 8,
     overflow: "hidden",
     backgroundColor: colors.gray,

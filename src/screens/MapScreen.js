@@ -29,7 +29,7 @@ const MapScreen = ({ navigation, route }) => {
     <View style={styles.container}>
       <MapView
         style={styles.mapStyle}
-        provider={MapView.PROVIDER_GOOGLE}
+        // provider="google"
         region={{
           latitude: latitudeData,
           longitude: longitudeData,

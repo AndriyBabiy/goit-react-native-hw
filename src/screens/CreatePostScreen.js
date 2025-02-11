@@ -129,12 +129,12 @@ const CreatePostScreen = ({ navigation, route }) => {
   };
 
   return (
-    <Pressable style={{ flex: 1 }} onPress={() => Keyboard.dismiss()}>
-      <View style={styles.container}>
-        <KeyboardAvoidingView
-          style={styles.createPostSection}
-          behavior={Platform.OS == "ios" ? "padding" : "height"}
-        >
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={styles.container}>
           <View style={styles.photoSection}>
             <View style={[styles.photoContainer, { overflow: "hidden" }]}>
               {postData.image ? (
@@ -236,23 +236,23 @@ const CreatePostScreen = ({ navigation, route }) => {
               Create
             </Text>
           </Button>
-        </KeyboardAvoidingView>
-        <Button
-          buttonStyle={[
-            {
-              alignSelf: "center",
-              width: 70,
-              height: 40,
-              justifyContent: "center",
-              backgroundColor: colors.light_gray,
-            },
-          ]}
-          onPress={clearPost}
-        >
-          <BinIcon />
-        </Button>
-      </View>
-    </Pressable>
+          <Button
+            buttonStyle={[
+              {
+                alignSelf: "center",
+                width: 70,
+                height: 40,
+                justifyContent: "center",
+                backgroundColor: colors.light_gray,
+              },
+            ]}
+            onPress={clearPost}
+          >
+            <BinIcon />
+          </Button>
+        </View>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 };
 

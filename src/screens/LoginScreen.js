@@ -62,7 +62,7 @@ const LoginScreen = ({ route, navigation, authorization }) => {
   );
 
   return (
-    <Pressable style={{ flex: 1 }} onPress={() => Keyboard.dismiss()}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <Image
         source={require("../../assets/background.png")}
         resizeMode="cover"
@@ -106,7 +106,7 @@ const LoginScreen = ({ route, navigation, authorization }) => {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </Pressable>
+    </TouchableWithoutFeedback>
   );
 };
 

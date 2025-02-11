@@ -16,7 +16,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.goit-react-native-hw",
       "config": {
-        "googleMapsApiKey": "AIzaSyCBPzZcVkiuJ-3lPH5pcmQU_lnmKWE4JWw"
+        "googleMapsApiKey": "EXPO_PUBLIC_IOS_GOOGLE_KWY"
+      },
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to take photos."
       }
     },
     "android": {

@@ -17,8 +17,6 @@ export const registerDB = async (email, password, username) => {
       password
     );
 
-    console.log(credentials);
-
     const user = credentials.user;
 
     await addUser(user.uid, {
@@ -31,7 +29,7 @@ export const registerDB = async (email, password, username) => {
   }
 };
 
-export const loginDB = async ({ email, password }, dispatch) => {
+export const loginDB = async (email, password, dispatch) => {
   try {
     const credentials = await signInWithEmailAndPassword(auth, email, password);
     console.log(credentials);
@@ -66,7 +64,7 @@ export const logoutDB = async (dispatch) => {
 export const authStateChanged = (dispatch) => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      const userData = await getUser(user.id);
+      const userData = await getUser(user.uid);
 
       dispatch(
         setUserInfo({

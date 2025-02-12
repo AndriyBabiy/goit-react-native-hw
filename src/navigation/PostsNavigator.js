@@ -7,10 +7,14 @@ import LogoutButton from "../components/LogoutButton";
 import { colors } from "../../styles/global";
 import BackButton from "../components/BackButton";
 import MapScreen from "../screens/MapScreen";
+import { logoutDB } from "../utils/auth";
+import { useDispatch } from "react-redux";
 
 const PostsStack = createNativeStackNavigator();
 
 const PostsNavigator = ({ authorization }) => {
+  const dispatch = useDispatch();
+
   return (
     <PostsStack.Navigator
       initialRouteName="Posts"
@@ -32,7 +36,9 @@ const PostsNavigator = ({ authorization }) => {
           ),
           tabBarIconStyle: styles.bottomBarElement,
           headerRightContainerStyle: styles.headerRightStyle,
-          headerRight: ({}) => <LogoutButton onPress={authorization} />,
+          headerRight: ({}) => (
+            <LogoutButton onPress={() => logoutDB(dispatch)} />
+          ),
         })}
       >
         {(props) => <PostsScreen {...props} authorization={authorization} />}

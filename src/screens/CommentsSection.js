@@ -3,6 +3,7 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -37,54 +38,60 @@ const CommentsSection = ({ navigation, route }) => {
   }, []);
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <View style={styles.container}>
-          <Image
-            style={styles.image}
-            source={require("../../assets/background.png")}
-          />
-          <ScrollView>
-            <View style={styles.comments}>
-              <View style={[styles.comment, styles.commentRight]}>
-                <Image
-                  source={require("../../assets/background.png")}
-                  style={styles.commentUserImage}
-                />
-                <View
-                  style={[styles.commentContent, styles.commentContentRight]}
-                >
-                  <Text style={styles.commentBody}>
-                    Main comment text Main comment text Main comment text Main
-                    comment text Main comment text Main comment text Main
-                    comment text Main comment text
-                  </Text>
-                  <Text
-                    style={[
-                      styles.commentTimestamp,
-                      styles.commentTimestampLeft,
-                    ]}
+    <TouchableWithoutFeedback
+      style={{ flex: 1 }}
+      onPress={Keyboard.dismiss}
+      accessible={false}
+    >
+      <View style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.container}>
+            <Image
+              style={styles.image}
+              source={require("../../assets/background.png")}
+            />
+            <ScrollView>
+              <View style={styles.comments}>
+                <View style={[styles.comment, styles.commentRight]}>
+                  <Image
+                    source={require("../../assets/background.png")}
+                    style={styles.commentUserImage}
+                  />
+                  <View
+                    style={[styles.commentContent, styles.commentContentRight]}
                   >
-                    Comment Timestamp
-                  </Text>
+                    <Text style={styles.commentBody}>
+                      Main comment text Main comment text Main comment text Main
+                      comment text Main comment text Main comment text Main
+                      comment text Main comment text
+                    </Text>
+                    <Text
+                      style={[
+                        styles.commentTimestamp,
+                        styles.commentTimestampLeft,
+                      ]}
+                    >
+                      Comment Timestamp
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          </ScrollView>
-          <Input
-            outerStyles={styles.commentInput}
-            placeholder={"Comment..."}
-            actionButton={
-              <Button buttonStyle={styles.commentSubmitButton}>
-                <SendArrowIcon />
-              </Button>
-            }
-          ></Input>
-        </View>
-      </KeyboardAvoidingView>
+            </ScrollView>
+            <Input
+              outerStyles={styles.commentInput}
+              placeholder={"Comment..."}
+              actionButton={
+                <Button buttonStyle={styles.commentSubmitButton}>
+                  <SendArrowIcon />
+                </Button>
+              }
+            ></Input>
+          </View>
+        </KeyboardAvoidingView>
+      </View>
     </TouchableWithoutFeedback>
   );
 };

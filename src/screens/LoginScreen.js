@@ -18,6 +18,7 @@ import AddImageSVG from "../../assets/icons/AddImageIcon";
 import Input from "../components/Input";
 import { colors } from "../../styles/global";
 import Button from "../components/Button";
+import { loginDB } from "../utils/auth";
 
 const LoginScreen = ({ route, navigation, authorization }) => {
   const [data, setData] = useState({
@@ -33,8 +34,8 @@ const LoginScreen = ({ route, navigation, authorization }) => {
   const onLogin = () => {
     if (data.email.length > 1 && data.password.length > 1) {
       console.log(data);
+      loginDB(data.email, data.password, data.username);
       setData((prev) => ({ ...prev, email: "", password: "" }));
-      authorization();
     } else {
       console.log("Data Missing: Please fill all fields.");
     }
@@ -62,50 +63,56 @@ const LoginScreen = ({ route, navigation, authorization }) => {
   );
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <Image
-        source={require("../../assets/background.png")}
-        resizeMode="cover"
-        style={styles.image}
-      />
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS == "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={-274 + 32}
-      >
-        <View style={styles.backgroundSection}>
-          <View style={styles.content}>
-            <Text style={styles.header}>Login</Text>
-            <View style={styles.loginForm}>
-              <View style={styles.formFields}>
-                <Input
-                  value={data.email}
-                  placeholder={"Email"}
-                  onTextChange={(value) => onInputChange(value, "email")}
-                />
-                <Input
-                  value={data.password}
-                  placeholder={"Password"}
-                  onTextChange={(value) => onInputChange(value, "password")}
-                  actionButton={showButton}
-                  secureTextEntry={isPasswordHidden}
-                />
-              </View>
-              <View style={styles.formSubmissionButtons}>
-                <Button onPress={onLogin}>
-                  <Text style={styles.buttonText}>Login</Text>
-                </Button>
-                <View style={styles.textWithLink}>
-                  <Text>Don't have account? </Text>
-                  <TouchableWithoutFeedback onPress={toRegister}>
-                    <Text style={styles.link}>Register</Text>
-                  </TouchableWithoutFeedback>
+    <TouchableWithoutFeedback
+      style={{ flex: 1 }}
+      onPress={Keyboard.dismiss}
+      accessible={false}
+    >
+      <View style={{ flex: 1 }}>
+        <Image
+          source={require("../../assets/background.png")}
+          resizeMode="cover"
+          style={styles.image}
+        />
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS == "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={-274 + 32}
+        >
+          <View style={styles.backgroundSection}>
+            <View style={styles.content}>
+              <Text style={styles.header}>Login</Text>
+              <View style={styles.loginForm}>
+                <View style={styles.formFields}>
+                  <Input
+                    value={data.email}
+                    placeholder={"Email"}
+                    onTextChange={(value) => onInputChange(value, "email")}
+                  />
+                  <Input
+                    value={data.password}
+                    placeholder={"Password"}
+                    onTextChange={(value) => onInputChange(value, "password")}
+                    actionButton={showButton}
+                    secureTextEntry={isPasswordHidden}
+                  />
+                </View>
+                <View style={styles.formSubmissionButtons}>
+                  <Button onPress={onLogin}>
+                    <Text style={styles.buttonText}>Login</Text>
+                  </Button>
+                  <View style={styles.textWithLink}>
+                    <Text>Don't have account? </Text>
+                    <TouchableWithoutFeedback onPress={toRegister}>
+                      <Text style={styles.link}>Register</Text>
+                    </TouchableWithoutFeedback>
+                  </View>
                 </View>
               </View>
             </View>
           </View>
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </View>
     </TouchableWithoutFeedback>
   );
 };

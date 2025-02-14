@@ -9,12 +9,13 @@ import { clearUserInfo, setUserInfo } from "../redux/reducers/userSlice";
 import { auth } from "../../config";
 import { addUser, getUser } from "./firestore";
 
-export const registerDB = async (email, password, username) => {
+export const registerDB = async (email, password, username, profileImage) => {
   try {
     const credentials = await createUserWithEmailAndPassword(
       auth,
       email,
-      password
+      password,
+      profileImage
     );
 
     const user = credentials.user;
@@ -23,6 +24,7 @@ export const registerDB = async (email, password, username) => {
       uid: user.uid,
       email: user.email,
       username,
+      profileImage,
     });
   } catch (error) {
     console.log("SIGNUP ERROR: ", error);

@@ -17,7 +17,7 @@ export const addPost = async (userId, post) => {
     await setDoc(doc(db, "posts", userId), post, { merge: true });
     console.log("Post added: ", userId);
   } catch (e) {
-    console.error("Error adding post: ", error);
+    console.error("Error adding post: ", e);
   }
 };
 
@@ -56,9 +56,9 @@ export const updateUserInFirestore = async (uid, data) => {
   }
 };
 
-export const uploadImage = async (userId, file, fileName) => {
+export const uploadImage = async (location, userId, file, fileName) => {
   try {
-    const imageRef = ref(storage, `postPhotos/${userId}/${fileName}`);
+    const imageRef = ref(storage, `${location}/${userId}/${fileName}`);
     const result = await uploadBytes(imageRef, file);
     const imageUrl = await getImageUrl(imageRef);
   } catch (e) {

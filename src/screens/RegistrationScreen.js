@@ -19,14 +19,38 @@ import AddImageIcon from "../../assets/icons/AddImageIcon";
 import { colors } from "../../styles/global";
 import Button from "../components/Button";
 import { registerDB } from "../utils/auth";
+import * as ImagePicker from "expo-image-picker";
 
 const RegistrationScreen = ({ route, navigation, authorization }) => {
   const [data, setData] = useState({
     username: "",
     email: "",
     password: "",
+    profileImage: "",
   });
   const [isPasswordHidden, setIsPasswordHidden] = useState(true);
+
+  const addProfileImage = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      alert("Permission to access media library is required");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
+      allowsEditing: false,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+
+      setData((prev) => ({ ...prev, profileImage: uri }));
+    }
+  };
 
   const onInputChange = (value, input) => {
     setData((prev) => ({ ...prev, [input]: value }));
@@ -39,8 +63,14 @@ const RegistrationScreen = ({ route, navigation, authorization }) => {
       data.password.length > 1
     ) {
       console.log(data);
-      registerDB(data.email, data.password, data.username);
-      setData((prev) => ({ ...prev, username: "", email: "", password: "" }));
+      registerDB(data.email, data.password, data.username, data.profileImage);
+      setData((prev) => ({
+        ...prev,
+        username: "",
+        email: "",
+        password: "",
+        profileImage: "",
+      }));
     } else {
       alert("Data Missing: Please fill all fields.");
     }
@@ -87,9 +117,27 @@ const RegistrationScreen = ({ route, navigation, authorization }) => {
           <View style={styles.backgroundSection}>
             <View style={styles.content}>
               <View style={styles.photoInput}>
+                {data.profileImage ? (
+                  <Image
+                    style={{
+                      flex: 1,
+                      backgroundColor: colors.gray,
+                      borderRadius: 16,
+                    }}
+                    source={{ uri: data.profileImage }}
+                  />
+                ) : (
+                  <View
+                    style={{
+                      flex: 1,
+                      backgroundColor: colors.gray,
+                      borderRadius: 16,
+                    }}
+                  ></View>
+                )}
                 <TouchableWithoutFeedback
                   style={styles.addImageButton}
-                  onPress={() => console.log("Add Image")}
+                  onPress={addProfileImage}
                 >
                   <AddImageIcon style={styles.addImageButton} />
                 </TouchableWithoutFeedback>

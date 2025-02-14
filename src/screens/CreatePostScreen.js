@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -7,7 +8,7 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Pressable, TextInput, TouchableWithoutFeedback } from "react-native";
 import CameraIcon from "../../assets/icons/CameraIcon.js";
 import LocationIcon from "../../assets/icons/LocationIcon.js";
@@ -22,6 +23,9 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import { addPost, uploadImage } from "../utils/firestore.js";
+import { useSelector } from "react-redux";
 
 const postFields = {
   image: "",
@@ -39,6 +43,10 @@ const CreatePostScreen = ({ navigation, route }) => {
   const [buttonActive, setButtonActive] = useState(false);
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [errorMsg, setErrorMsg] = useState(null);
+  const PLACES_KEY = process.env.EXPO_PUBLIC_PLACES_KEY;
+  const autocompleteRef = useRef(null);
+  const [localLocation, setLocalLocation] = useState("");
+  const user = useSelector((state) => state.user.userInfo);
 
   const navigateToCameraScreen = () => {
     navigation.replace("Camera", {
@@ -68,16 +76,37 @@ const CreatePostScreen = ({ navigation, route }) => {
     }
   };
 
+  const uploadImageToStorage = async () => {
+    if (!postData.image) return;
+
+    try {
+      const response = await fetch(postData.image);
+      const file = await response.blob();
+      const fileName = postData.image.split("/").pop();
+      const fileType = file.type;
+      const imageFile = new File([file], fileName, { type: fileType });
+
+      const uploadedImageUrl = await uploadImage(
+        "postPhotos",
+        user.uid,
+        imageFile,
+        fileName
+      );
+
+      console.log("Uploaded image to storage!");
+      return uploadedImageUrl;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  };
+
   const onInputChange = (value, input) => {
     setPostData((prev) => ({ ...prev, [input]: value }));
   };
 
   useEffect(() => {
-    if (
-      postData.image.length > 1 &&
-      postData.title.length > 1 &&
-      postData.location.length > 1
-    ) {
+    if (postData.image && postData.title && postData.location) {
       setButtonActive(true);
     }
   }, [postData]);
@@ -93,36 +122,93 @@ const CreatePostScreen = ({ navigation, route }) => {
     }));
   }, [params]);
 
+  const onLocationFocus = () => {
+    setLocationFocus(true);
+  };
+  const onLocationBlur = () => {
+    setLocationFocus(false);
+  };
+
   const clearPost = () => {
     setPostData((prev) => ({ ...prev, ...postFields }));
+    setLocalLocation("");
+    autocompleteRef.current?.clear();
 
     // navigation.setParams(null);
     () => {
-      params.image = "";
-      params.title = "";
-      params.location = "";
+      params.image = null;
+      params.title = null;
+      params.location = null;
     };
+
     setButtonActive(false);
   };
 
+  // const onSubmitPost = async () => {
+  //   let { status } = await Location.requestForegroundPermissionsAsync();
+  //   if (status !== "granted") {
+  //     setErrorMsg("Permission to access location was denied");
+  //     return;
+  //   }
+
+  //   let location = await Location.getCurrentPositionAsync({});
+
+  //   setPostData((prev) => ({
+  //     ...prev,
+  //     geolocation: {
+  //       latitude: location.coords.latitude,
+  //       longitude: location.coords.longitude,
+  //     },
+  //   }));
+
+  //   params.postData = postData;
+
+  //   clearPost();
+  //   navigation.navigate("Posts Navigator");
+  // };
+
   const onSubmitPost = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      setErrorMsg("Permission to access location was denied");
-      return;
+    console.log(postData);
+
+    // Check if geolocation data is available (for example, by checking the latitude)
+    if (
+      !postData.geolocation ||
+      !postData.geolocation.latitude ||
+      !postData.geolocation.longitude
+    ) {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert("Permission to access location was denied");
+        return;
+      }
+
+      const currentLocation = await Location.getCurrentPositionAsync({});
+      setPostData((prev) => ({
+        ...prev,
+        geolocation: {
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+        },
+      }));
     }
 
-    let location = await Location.getCurrentPositionAsync({});
+    try {
+      const imageUrl = await uploadImageToStorage();
 
-    setPostData((prev) => ({
-      ...prev,
-      geolocation: {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      },
-    }));
+      const postId = uuidv4();
 
-    params.postData = postData;
+      await addPost(postId, {
+        address: postData.location,
+        id: postId,
+        image: imageUrl,
+        userId: user.uid,
+        title: postData.title,
+        geolocation: postData.geolocation,
+      });
+      Alert.alert("Post successfully created");
+    } catch (e) {
+      console.error(e);
+    }
 
     clearPost();
     navigation.navigate("Posts Navigator");
@@ -201,7 +287,7 @@ const CreatePostScreen = ({ navigation, route }) => {
                 borderRadius: 0,
               }}
             />
-            <Input
+            {/* <Input
               value={postData.location}
               placeholder={"Location..."}
               onTextChange={(value) => onInputChange(value, "location")}
@@ -214,7 +300,151 @@ const CreatePostScreen = ({ navigation, route }) => {
                 borderRadius: 0,
               }}
               leftIcon={<LocationIcon style={{ marginRight: 4 }} />}
-            />
+            /> */}
+            <Input
+              value={postData.location}
+              placeholder={"Location..."}
+              onTextChange={(value) => onInputChange(value, "location")}
+              outerStyles={{
+                width: "100%",
+                borderWidth: 0,
+                backgroundColor: colors.white,
+                paddingHorizontal: 0,
+                borderBottomWidth: 1,
+                borderRadius: 0,
+              }}
+              leftIcon={<LocationIcon style={{ paddingTop: 10 }} />}
+              alternativeInput={true}
+            >
+              <GooglePlacesAutocomplete
+                placeholder="Location..."
+                ref={autocompleteRef}
+                query={{
+                  key: PLACES_KEY,
+                  language: "en", // language of the results
+                }}
+                enablePoweredByContainer={false}
+                fetchDetails
+                currentLocation
+                // renderLeftButton={() => (
+                //   <LocationIcon
+                //     style={{
+                //       marginRight: -6,
+                //       alignSelf: "center",
+                //     }}
+                //   />
+                // )}
+                onPress={(data, details = null) => {
+                  // When a suggestion is selected, update both the description and geolocation
+                  setPostData((prev) => ({
+                    ...prev,
+                    location: data.description,
+                    geolocation: details?.geometry?.location
+                      ? {
+                          latitude: details.geometry.location.lat,
+                          longitude: details.geometry.location.lng,
+                        }
+                      : prev.geolocation,
+                  }));
+                  setLocalLocation(data.description);
+                }}
+                textInputProps={{
+                  onChangeText: (text) => {
+                    // Update local state as the user types
+                    setLocalLocation(text);
+                  },
+                  onBlur: () => {
+                    // If the user simply leaves the field without a selection,
+                    // update the location with the entered text.
+                    setPostData((prev) => ({
+                      ...prev,
+                      location: localLocation,
+                    }));
+                  },
+                }}
+                onFail={(error) => alert(error)}
+                styles={{
+                  textInputContainer: {
+                    padding: 0,
+                    paddingTop: 6,
+                    width: "100%",
+                    borderWidth: 0,
+                    backgroundColor: colors.white,
+                    paddingHorizontal: 0,
+                    borderRadius: 0,
+                  },
+                  textInput: {
+                    backgroundColor: "none",
+                    border: 0,
+                  },
+                }}
+              />
+            </Input>
+            {/* <View
+              style={{
+                flex: 1,
+                backgroundColor: colors.white,
+                paddingHorizontal: 0,
+                borderBottomWidth: 1,
+                borderRadius: 0,
+                borderColor: colors.gray,
+              }}
+            >
+              <GooglePlacesAutocomplete
+                placeholder="Location..."
+                ref={autocompleteRef}
+                query={{
+                  key: PLACES_KEY,
+                  language: "en", // language of the results
+                }}
+                enablePoweredByContainer={false}
+                fetchDetails
+                currentLocation
+                renderLeftButton={() => (
+                  <LocationIcon
+                    style={{
+                      marginRight: -6,
+                      alignSelf: "center",
+                    }}
+                  />
+                )}
+                onPress={(data, details = null) => {
+                  setPostData((prev) => ({
+                    ...prev,
+                    location: data.description,
+                  }));
+                }}
+                textInputProps={{
+                  onFocus: () => onLocationFocus,
+                  onBlur: () => {
+                    onLocationBlur,
+                      onInputChange(postData.location, "location");
+                  },
+                  // value: postData.location,
+                  // onChangeText: onInputChange(postData.location, "location"),
+                }}
+                onFail={(error) => alert(error)}
+                styles={{
+                  textInputContainer: {
+                    padding: 0,
+                    width: "100%",
+                    borderWidth: 0,
+                    backgroundColor: colors.white,
+                    paddingHorizontal: 0,
+                    borderBottomWidth: 1,
+                    borderRadius: 0,
+                    borderColor: colors.gray,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  },
+                  textInput: {
+                    backgroundColor: "none",
+                    border: 0,
+                    paddingTop: 10,
+                  },
+                }}
+              />
+            </View> */}
           </View>
           <Button
             buttonStyle={[

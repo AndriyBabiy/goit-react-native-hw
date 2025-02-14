@@ -5,7 +5,9 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import { colors } from "../../styles/global";
 
 const Input = ({
   value,
@@ -17,8 +19,12 @@ const Input = ({
   autofocus = false,
   secureTextEntry = false,
   onBlur: onBlurCustom,
+  alternativeInput = false,
+  children,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
+  const PLACES_KEY = process.env.EXPO_PUBLIC_PLACES_KEY;
+  const autocompleteRef = useRef(null);
 
   const onFocus = () => {
     setIsFocused(true);
@@ -38,17 +44,21 @@ const Input = ({
       style={[styles.formInputField, isFocused && styles.focused, outerStyles]}
     >
       {leftIcon}
-      <TextInput
-        value={value}
-        autofocus={autofocus}
-        placeholder={placeholder}
-        onChangeText={onTextChange}
-        secureTextEntry={secureTextEntry}
-        autoCapitalize="none"
-        onFocus={onFocus}
-        onBlur={onBlur}
-        style={styles.formTextInput}
-      />
+      {alternativeInput ? (
+        children
+      ) : (
+        <TextInput
+          value={value}
+          autofocus={autofocus}
+          placeholder={placeholder}
+          onChangeText={onTextChange}
+          secureTextEntry={secureTextEntry}
+          autoCapitalize="none"
+          onFocus={onFocus}
+          onBlur={onBlur}
+          style={styles.formTextInput}
+        />
+      )}
       {actionButton}
     </View>
   );
@@ -58,11 +68,10 @@ export default Input;
 
 const styles = StyleSheet.create({
   formInputField: {
-    flex: 1,
     flexDirection: "row",
 
     width: 343,
-    maxHeight: 50,
+    // maxHeight: 50,
     backgroundColor: "#F6F6F6",
 
     flexDirection: "row",
@@ -77,6 +86,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   formTextInput: {
+    paddingVertical: 15,
     flexBasis: "auto",
     flexGrow: 1,
   },

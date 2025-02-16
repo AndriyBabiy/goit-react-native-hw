@@ -18,6 +18,7 @@
     "@reduxjs/toolkit": "^2.5.1",
     "expo": "~52.0.25",
     "expo-camera": "~16.0.14",
+    "expo-dev-client": "~5.0.12",
     "expo-font": "~13.0.3",
     "expo-image-picker": "~16.0.5",
     "expo-location": "~18.0.5",

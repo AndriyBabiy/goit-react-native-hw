@@ -6,20 +6,50 @@ import {
   Text,
   TouchableWithoutFeedback,
   View,
+  FlatList,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CommentIcon from "../../assets/icons/CommentIcon.js";
 import LocationIcon from "../../assets/icons/LocationIcon.js";
 import { colors } from "../../styles/global.js";
+import { fetchAllPosts, getUser } from "../utils/firestore.js";
+import { useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 
 const PostsScreen = ({ navigation, route }) => {
+  const user = useSelector((state) => state.user.userInfo);
+  const [userData, setUserData] = useState(null);
   const params = route?.params;
+  const [posts, setPosts] = useState([]);
+  const [refreshing, setRefresh] = useState(false);
 
-  const toComments = () => {
-    navigation.navigate("Comments");
+  const getAllPosts = async () => {
+    try {
+      const result = await fetchAllPosts();
+      setPosts(result);
+      setRefresh(false);
+    } catch (error) {
+      console.error(error);
+    }
   };
-  const toLocation = () => {
-    navigation.navigate("Map");
+
+  useEffect(() => {
+    const getUserData = async () => {
+      try {
+        const result = await getUser(user.uid);
+        setUserData((prev) => ({ ...prev, ...result }));
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    getAllPosts();
+    getUserData();
+  }, []);
+
+  const onRefresh = () => {
+    setRefresh(true);
+    getAllPosts();
   };
 
   return (
@@ -28,32 +58,65 @@ const PostsScreen = ({ navigation, route }) => {
         <View style={styles.profileImageContainer}>
           <Image
             style={styles.profileImage}
-            source={require("../../assets/background.png")}
+            source={
+              userData && userData.profileImage.length > 1
+                ? { uri: userData.profileImage }
+                : require("../../assets/placeholder_profile_image.png")
+            }
           />
         </View>
         <View style={styles.profileText}>
-          <Text style={styles.Name}>Username</Text>
-          <Text style={styles.email}>Email</Text>
+          <Text style={styles.username}>
+            {userData ? userData.username : "Username"}
+          </Text>
+          <Text style={styles.email}>
+            {userData ? userData.email : "email"}
+          </Text>
         </View>
       </View>
-      <View style={styles.postCards}>
-        <View style={styles.postCard}>
-          <Image
-            style={styles.postImage}
-            source={require("../../assets/background.png")}
-          />
-          <Text style={styles.postTitle}>Post title</Text>
-          <View style={styles.postDetails}>
-            <Pressable style={styles.detailsElement} onPress={toComments}>
-              <CommentIcon />
-              <Text style={styles.commentCount}>15</Text>
-            </Pressable>
-            <Pressable style={styles.detailsElement} onPress={toLocation}>
-              <LocationIcon />
-              <Text style={styles.locationText}>House, City, Country</Text>
-            </Pressable>
-          </View>
-        </View>
+      <FlatList
+        data={posts}
+        keyExtractor={(item) => item.id}
+        renderItem={(item) => <Post data={item} />}
+        style={styles.postCards}
+        onRefresh={onRefresh}
+        refreshing={refreshing}
+      ></FlatList>
+    </View>
+  );
+};
+
+const Post = ({ data }) => {
+  const navigation = useNavigation();
+  const { id, image, title, comments, address, geolocation } = data.item;
+  const toComments = () => {
+    navigation.navigate("Comments", { postId: id });
+  };
+  const toLocation = ({ longitude, latitude }) => {
+    navigation.navigate("Map", { geolocation: geolocation });
+  };
+
+  console.log(data);
+
+  return (
+    <View style={styles.postCard}>
+      <Image style={styles.postImage} source={{ uri: image }} />
+      <Text style={styles.postTitle}>{title}</Text>
+      <View style={styles.postDetails}>
+        <Pressable style={styles.detailsElement} onPress={toComments}>
+          <CommentIcon />
+          <Text style={styles.commentCount}>{comments.length}</Text>
+        </Pressable>
+        <Pressable style={styles.detailsElement} onPress={toLocation}>
+          <LocationIcon />
+          <Text
+            style={styles.locationText}
+            numberOfLines={1}
+            ellipsizeMode="clip"
+          >
+            {address}
+          </Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -78,15 +141,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   profileImage: { width: 60, height: 60, borderRadius: 16 },
-  login: {
+  username: {
     color: colors.black,
-    fontFamily: "Roboto-Bold",
+    fontFamily: "Roboto-Medium",
     fontSize: 13,
-    fontWeight: 700,
+    // fontWeight: 700,
     textTransform: "capitalize",
   },
   email: {
-    color: colors.black,
+    color: "graphite",
     fontFamily: "Roboto-Regular",
     fontSize: 11,
     fontWeight: 400,
@@ -95,6 +158,7 @@ const styles = StyleSheet.create({
   postCard: {
     // flex: 1,
     gap: 8,
+    paddingBottom: 32,
   },
   postImage: {
     alignItems: "center",
@@ -124,6 +188,7 @@ const styles = StyleSheet.create({
     color: colors.dark_gray,
   },
   locationText: {
+    maxWidth: 220,
     textDecorationLine: "underline",
   },
 });

@@ -1,5 +1,6 @@
 import {
   Dimensions,
+  FlatList,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -11,19 +12,38 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Input from "../components/Input";
 import { colors } from "../../styles/global";
 import Button from "../components/Button";
 import SendArrowIcon from "../../assets/icons/SendArrowIcon";
+import { getPost } from "../utils/firestore";
 
 const CommentsSection = ({ navigation, route }) => {
+  const { postId } = route.params;
+  const [comments, setComments] = useState([]);
+  const [refreshing, setRefresh] = useState(false);
+
+  const getAllComments = async () => {
+    try {
+      const result = await getPost(postId);
+
+      setComments(result.comments);
+      setRefresh(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     navigation.getParent()?.setOptions({
       tabBarStyle: {
         display: "none",
       },
     });
+
+    getAllComments();
+
     return () => {
       navigation.getParent()?.setOptions({
         tabBarStyle: {
@@ -36,6 +56,15 @@ const CommentsSection = ({ navigation, route }) => {
       });
     };
   }, []);
+
+  const onRefresh = () => {
+    setRefresh(true);
+    getAllPosts();
+  };
+
+  const submitComment = () => {
+    console.log("Submit comment");
+  };
 
   return (
     <TouchableWithoutFeedback
@@ -53,38 +82,31 @@ const CommentsSection = ({ navigation, route }) => {
               style={styles.image}
               source={require("../../assets/background.png")}
             />
-            <ScrollView>
-              <View style={styles.comments}>
-                <View style={[styles.comment, styles.commentRight]}>
-                  <Image
-                    source={require("../../assets/background.png")}
-                    style={styles.commentUserImage}
-                  />
-                  <View
-                    style={[styles.commentContent, styles.commentContentRight]}
-                  >
-                    <Text style={styles.commentBody}>
-                      Main comment text Main comment text Main comment text Main
-                      comment text Main comment text Main comment text Main
-                      comment text Main comment text
-                    </Text>
-                    <Text
-                      style={[
-                        styles.commentTimestamp,
-                        styles.commentTimestampLeft,
-                      ]}
-                    >
-                      Comment Timestamp
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </ScrollView>
+            {/* <FlatList
+              data={comments}
+              keyExtractor={(item) => item.id}
+              renderItem={(item) => <Comment data={item} />}
+              style={styles.Comment}
+              onRefresh={onRefresh}
+              refreshing={refreshing}
+            >
+              <Comment />
+              <Comment />
+              <Comment />
+            </FlatList> */}
+            <View style={styles.comments}>
+              <Comment />
+              <Comment />
+              <Comment />
+            </View>
             <Input
               outerStyles={styles.commentInput}
               placeholder={"Comment..."}
               actionButton={
-                <Button buttonStyle={styles.commentSubmitButton}>
+                <Button
+                  buttonStyle={styles.commentSubmitButton}
+                  onPress={submitComment}
+                >
                   <SendArrowIcon />
                 </Button>
               }
@@ -93,6 +115,27 @@ const CommentsSection = ({ navigation, route }) => {
         </KeyboardAvoidingView>
       </View>
     </TouchableWithoutFeedback>
+  );
+};
+
+const Comment = () => {
+  return (
+    <View style={[styles.comment, styles.commentRight]}>
+      <Image
+        source={require("../../assets/background.png")}
+        style={styles.commentUserImage}
+      />
+      <View style={[styles.commentContent, styles.commentContentRight]}>
+        <Text style={styles.commentBody}>
+          Main comment text Main comment text Main comment text Main comment
+          text Main comment text Main comment text Main comment text Main
+          comment text
+        </Text>
+        <Text style={[styles.commentTimestamp, styles.commentTimestampLeft]}>
+          Comment Timestamp
+        </Text>
+      </View>
+    </View>
   );
 };
 
@@ -165,6 +208,10 @@ const styles = StyleSheet.create({
   commentInput: {
     width: "auto",
     borderRadius: 100,
+
+    position: "absolute",
+    bottom: 40,
+    alignSelf: "center",
   },
   commentSubmitButton: {
     display: "flex",

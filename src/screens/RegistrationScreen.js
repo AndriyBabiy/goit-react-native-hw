@@ -20,6 +20,7 @@ import { colors } from "../../styles/global";
 import Button from "../components/Button";
 import { registerDB } from "../utils/auth";
 import * as ImagePicker from "expo-image-picker";
+import { updateUserInFirestore, uploadImage } from "../utils/firestore";
 
 const RegistrationScreen = ({ route, navigation, authorization }) => {
   const [data, setData] = useState({
@@ -52,18 +53,56 @@ const RegistrationScreen = ({ route, navigation, authorization }) => {
     }
   };
 
+  const uploadImageToStorage = async (dataInput) => {
+    if (!data.profileImage) return;
+
+    try {
+      const response = await fetch(dataInput.profileImage);
+      const file = await response.blob();
+      const fileName = dataInput.profileImage.split("/").pop();
+      const fileType = file.type;
+      const imageFile = new File([file], fileName, { type: fileType });
+
+      const uploadedImageUrl = await uploadImage(
+        "userPhotos",
+        dataInput.uid,
+        imageFile,
+        fileName
+      );
+
+      return uploadedImageUrl;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  };
+
   const onInputChange = (value, input) => {
     setData((prev) => ({ ...prev, [input]: value }));
   };
 
-  const onRegister = () => {
+  const onRegister = async () => {
     if (
       data.email.length > 1 &&
       data.username.length > 1 &&
       data.password.length > 1
     ) {
-      console.log(data);
-      registerDB(data.email, data.password, data.username, data.profileImage);
+      if (data.profileImage) {
+      }
+
+      const user = await registerDB(
+        data.email,
+        data.password,
+        data.username,
+        data.profileImage
+      );
+
+      if (data.profileImage) {
+        const uploadImageUrl = await uploadImageToStorage(user);
+
+        await updateUserInFirestore(user.uid, { profileImage: uploadImageUrl });
+      }
+
       setData((prev) => ({
         ...prev,
         username: "",

@@ -35,6 +35,7 @@ const postFields = {
     latitude: "",
     longitude: "",
   },
+  comments: [],
 };
 
 const CreatePostScreen = ({ navigation, route }) => {
@@ -94,6 +95,7 @@ const CreatePostScreen = ({ navigation, route }) => {
       );
 
       console.log("Uploaded image to storage!");
+      console.log(uploadedImageUrl);
       return uploadedImageUrl;
     } catch (e) {
       console.log(e);
@@ -144,33 +146,9 @@ const CreatePostScreen = ({ navigation, route }) => {
     setButtonActive(false);
   };
 
-  // const onSubmitPost = async () => {
-  //   let { status } = await Location.requestForegroundPermissionsAsync();
-  //   if (status !== "granted") {
-  //     setErrorMsg("Permission to access location was denied");
-  //     return;
-  //   }
-
-  //   let location = await Location.getCurrentPositionAsync({});
-
-  //   setPostData((prev) => ({
-  //     ...prev,
-  //     geolocation: {
-  //       latitude: location.coords.latitude,
-  //       longitude: location.coords.longitude,
-  //     },
-  //   }));
-
-  //   params.postData = postData;
-
-  //   clearPost();
-  //   navigation.navigate("Posts Navigator");
-  // };
-
   const onSubmitPost = async () => {
     console.log(postData);
 
-    // Check if geolocation data is available (for example, by checking the latitude)
     if (
       !postData.geolocation ||
       !postData.geolocation.latitude ||
@@ -195,6 +173,7 @@ const CreatePostScreen = ({ navigation, route }) => {
     try {
       const imageUrl = await uploadImageToStorage();
 
+      console.log(imageUrl);
       const postId = uuidv4();
 
       await addPost(postId, {
@@ -204,6 +183,7 @@ const CreatePostScreen = ({ navigation, route }) => {
         userId: user.uid,
         title: postData.title,
         geolocation: postData.geolocation,
+        comments: postData.comments,
       });
       Alert.alert("Post successfully created");
     } catch (e) {
@@ -326,14 +306,6 @@ const CreatePostScreen = ({ navigation, route }) => {
                 enablePoweredByContainer={false}
                 fetchDetails
                 currentLocation
-                // renderLeftButton={() => (
-                //   <LocationIcon
-                //     style={{
-                //       marginRight: -6,
-                //       alignSelf: "center",
-                //     }}
-                //   />
-                // )}
                 onPress={(data, details = null) => {
                   // When a suggestion is selected, update both the description and geolocation
                   setPostData((prev) => ({
@@ -380,71 +352,6 @@ const CreatePostScreen = ({ navigation, route }) => {
                 }}
               />
             </Input>
-            {/* <View
-              style={{
-                flex: 1,
-                backgroundColor: colors.white,
-                paddingHorizontal: 0,
-                borderBottomWidth: 1,
-                borderRadius: 0,
-                borderColor: colors.gray,
-              }}
-            >
-              <GooglePlacesAutocomplete
-                placeholder="Location..."
-                ref={autocompleteRef}
-                query={{
-                  key: PLACES_KEY,
-                  language: "en", // language of the results
-                }}
-                enablePoweredByContainer={false}
-                fetchDetails
-                currentLocation
-                renderLeftButton={() => (
-                  <LocationIcon
-                    style={{
-                      marginRight: -6,
-                      alignSelf: "center",
-                    }}
-                  />
-                )}
-                onPress={(data, details = null) => {
-                  setPostData((prev) => ({
-                    ...prev,
-                    location: data.description,
-                  }));
-                }}
-                textInputProps={{
-                  onFocus: () => onLocationFocus,
-                  onBlur: () => {
-                    onLocationBlur,
-                      onInputChange(postData.location, "location");
-                  },
-                  // value: postData.location,
-                  // onChangeText: onInputChange(postData.location, "location"),
-                }}
-                onFail={(error) => alert(error)}
-                styles={{
-                  textInputContainer: {
-                    padding: 0,
-                    width: "100%",
-                    borderWidth: 0,
-                    backgroundColor: colors.white,
-                    paddingHorizontal: 0,
-                    borderBottomWidth: 1,
-                    borderRadius: 0,
-                    borderColor: colors.gray,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  },
-                  textInput: {
-                    backgroundColor: "none",
-                    border: 0,
-                    paddingTop: 10,
-                  },
-                }}
-              />
-            </View> */}
           </View>
           <Button
             buttonStyle={[

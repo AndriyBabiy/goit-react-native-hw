@@ -4,6 +4,8 @@ import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { colors } from "../../styles/global";
 
 const MapScreen = ({ navigation, route }) => {
+  const { geolocation } = route.params;
+
   useEffect(() => {
     navigation.getParent()?.setOptions({
       tabBarStyle: {
@@ -23,7 +25,7 @@ const MapScreen = ({ navigation, route }) => {
     };
   }, []);
 
-  const [latitudeData, longitudeData] = ["37.785834", "-122.406417"];
+  const { latitude, longitude } = geolocation;
 
   return (
     <View style={styles.container}>
@@ -31,19 +33,19 @@ const MapScreen = ({ navigation, route }) => {
         style={styles.mapStyle}
         // provider="google"
         region={{
-          latitude: latitudeData,
-          longitude: longitudeData,
+          latitude: latitude,
+          longitude: longitude,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
         mapType="standard"
         onMapReady={() => console.log("Map is ready")}
-        onRegionChange={() => console.log("Region change")}
+        // onRegionChange={() => console.log("Region change")}
       >
         <Marker
           coordinate={{
-            latitude: latitudeData,
-            longitude: longitudeData,
+            latitude: latitude,
+            longitude: longitude,
           }}
         />
       </MapView>

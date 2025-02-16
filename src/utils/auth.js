@@ -20,12 +20,16 @@ export const registerDB = async (email, password, username, profileImage) => {
 
     const user = credentials.user;
 
-    await addUser(user.uid, {
+    const userData = {
       uid: user.uid,
       email: user.email,
       username,
       profileImage,
-    });
+    };
+
+    await addUser(user.uid, userData);
+
+    return userData;
   } catch (error) {
     console.log("SIGNUP ERROR: ", error);
   }

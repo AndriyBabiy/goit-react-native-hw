@@ -78,7 +78,7 @@ const PostsScreen = ({ navigation, route }) => {
         data={posts}
         keyExtractor={(item) => item.id}
         renderItem={(item) => <Post data={item} />}
-        style={styles.postCards}
+        contentContainerStyle={{ paddingBottom: 300 }}
         onRefresh={onRefresh}
         refreshing={refreshing}
       ></FlatList>
@@ -154,7 +154,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: 400,
   },
-  postCards: {},
+  postCards: {
+    paddingBottom: 500,
+  },
   postCard: {
     // flex: 1,
     gap: 8,
